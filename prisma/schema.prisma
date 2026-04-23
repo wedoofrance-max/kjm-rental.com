@@ -1,0 +1,418 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Vehicle Models (8 total)
+model Vehicle {
+  id        String   @id @default(cuid())
+  brand     String   // Honda, Yamaha, Mio
+  model     String   // Beat, Click, Nmax, etc
+  engine    String   // 110cc, 125cc, 155cc, 160cc
+  type      String   // Manual or Automatic
+  dailyRate Int      // PHP per day
+  weeklyRate Int     // PHP per week (7-27 days)
+  monthlyRate Int    // PHP per month (28+ days)
+  topCase   Boolean  // Has storage box?
+  visible   Boolean  @default(true)  // Show on website?
+  description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fleetUnits FleetUnit[]
+  bookings   Booking[]
+
+  @@index([brand])
+  @@index([dailyRate])
+}
+
+// Fleet Units (32 total - 4 per vehicle)
+model FleetUnit {
+  id                    String   @id @default(cuid())
+  vehicleId             String
+  vehicle               Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  unitNumber            String  // KJM-001, KJM-002, etc
+  licensePlate          String  // License plate (e.g., "ABC-1234" or custom format)
+  status                String   @default("available") // available, rented, maintenance
+  currentKilometers     Int      @default(0)
+  lastMaintenanceDate   DateTime?
+  maintenanceKilometers Int?     // Kilometers when sent for maintenance
+
+  // Legal Documents (Philippines: OR/CR, LTO, Insurance)
+  orCrDocumentUrl       String?  // URL/path to OR/CR document file
+  orCrExpiry            DateTime? // Official Receipt/Certificate of Registration expiry
+  ltRegistrationExpiry  DateTime? // LTO (Land Transportation Office) registration expiry
+  insuranceExpiry       DateTime? // Insurance policy expiry date
+  documentsLastChecked  DateTime? // Last date documents were verified
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  bookings Booking[]
+  damageLogs DamageLog[]
+  documentExpiryAlerts DocumentExpiryAlert[]
+
+  @@unique([vehicleId, unitNumber])
+  @@unique([licensePlate])
+  @@index([vehicleId])
+  @@index([status])
+  @@index([orCrExpiry])
+  @@index([ltRegistrationExpiry])
+  @@index([insuranceExpiry])
+}
+
+// Damage Log & Inspection Records
+model DamageLog {
+  id              String   @id @default(cuid())
+  fleetUnitId     String
+  fleetUnit       FleetUnit @relation(fields: [fleetUnitId], references: [id], onDelete: Cascade)
+
+  description     String   // Description of damage (scratch, dent, break, etc.)
+  severity        String   // "minor", "major", "critical"
+  damageType      String   // "scratch", "dent", "break", "crack", "other"
+  location        String   // Location on vehicle (e.g., "front left panel", "seat", "windshield")
+
+  // Photo/Video Evidence
+  photoUrls       String   // JSON array of photo URLs
+  videoUrls       String?  // JSON array of video URLs
+
+  // Tracking
+  reportedDate    DateTime @default(now())
+  inspectedDate   DateTime? // When damage was formally inspected
+  repairDate      DateTime? // When damage was repaired
+  repairCost      Int?      // Cost in PHP (if repaired)
+  repairNotes     String?   // Notes about repair
+
+  status          String   @default("reported") // reported, inspected, repaired, archived
+  notes           String?  // Additional notes
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([fleetUnitId])
+  @@index([status])
+  @@index([severity])
+  @@index([reportedDate])
+}
+
+// Customer Information
+model Customer {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String   @unique
+  phone     String
+  nationality String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@index([email])
+  @@index([phone])
+}
+
+// Promo Codes
+model PromoCode {
+  id            String   @id @default(cuid())
+  code          String   @unique // e.g., "WEEKEND7", "SUMMER20"
+  type          String   // "PERCENTAGE" | "FIXED_AMOUNT" | "FREE_DAYS"
+  value         Int      // 10 (for 10%), 500 (pesos), 2 (days)
+  minNights     Int?     // e.g., 7 (minimum booking nights required)
+  maxUsage      Int?     // e.g., 100 (max times usable, null = unlimited)
+  usageCount    Int      @default(0) // times actually used
+  expiresAt     DateTime // must be <= today + 30 days
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@index([code])
+  @@index([expiresAt])
+  @@index([isActive])
+}
+
+// Rental Bookings
+model Booking {
+  id            String   @id @default(cuid())
+  reference     String   @unique // KJM-20250421-001234
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  vehicleId     String
+  vehicle       Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  fleetUnitId   String?
+  fleetUnit     FleetUnit? @relation(fields: [fleetUnitId], references: [id], onDelete: SetNull)
+
+  pickupDate    DateTime
+  returnDate    DateTime
+  pickupLocation String  // store, hotel, airport
+  pickupAddress String?
+
+  status        String   @default("pending") // pending, confirmed, active, returned, cancelled
+  totalPrice    Int      // Total rental price in PHP (before discounts)
+  depositRequired Int    @default(2500)
+  depositPaid   Boolean  @default(false)
+
+  // Discount tracking
+  promoCodeId   String?  // Link to applied promo code
+  promoCode     PromoCode? @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
+  discountType  String?  // "WEEKEND_FREE" (auto) | "PROMO_CODE" | "BOTH"
+  autoDiscount  Int      @default(0) // Value of auto-discount (free 2 days = -₱X)
+  promoDiscount Int      @default(0) // Value of promo code discount (₱X)
+  finalPrice    Int      @default(0) // Final price after all discounts
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payment Payment?
+  addon   Addon[]
+
+  @@index([customerId])
+  @@index([vehicleId])
+  @@index([status])
+  @@index([pickupDate])
+  @@index([promoCodeId])
+}
+
+// Add-ons (Extra services)
+model Addon {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  name      String   // Extra helmet, Phone holder, Premium insurance
+  pricePerDay Int    @default(0) // All free for now
+  quantity  Int      @default(1)
+  total     Int      @default(0)
+
+  @@index([bookingId])
+}
+
+// Payment Records
+model Payment {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  method    String   // maya, gcash, cash_on_delivery
+  amount    Int
+  status    String   @default("pending") // pending, success, failed
+
+  transactionId String?
+  failureReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bookingId])
+  @@index([status])
+}
+
+// Availability Calendar
+model Availability {
+  id        String   @id @default(cuid())
+  vehicleId String
+  date      DateTime
+  available Boolean  @default(true)
+  booked    Int      @default(0) // Number of units booked for this date
+  reason    String?  // maintenance, blocked, etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([vehicleId, date])
+  @@index([vehicleId])
+  @@index([date])
+}
+
+// WhatsApp Message Queue
+model WhatsappMessage {
+  id        String   @id @default(cuid())
+  bookingId String?
+  phone     String
+  message   String
+  status    String   @default("pending") // pending, sent, delivered, failed
+  sentAt    DateTime?
+  failureReason String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bookingId])
+  @@index([phone])
+  @@index([status])
+}
+
+// Document Expiry Alerts
+model DocumentExpiryAlert {
+  id              String   @id @default(cuid())
+  fleetUnitId     String
+  fleetUnit       FleetUnit @relation(fields: [fleetUnitId], references: [id], onDelete: Cascade)
+
+  documentType    String   // "OR/CR", "LTO", "Insurance"
+  expiryDate      DateTime
+  daysUntilExpiry Int      // Calculated field for quick queries
+
+  // Alert tracking
+  firstAlertSent  DateTime? // When the first alert was sent
+  alertCount      Int      @default(0) // Number of alerts sent
+  dismissed       Boolean  @default(false) // Has admin acknowledged this alert?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([fleetUnitId, documentType])
+  @@index([fleetUnitId])
+  @@index([documentType])
+  @@index([daysUntilExpiry])
+  @@index([dismissed])
+}
+
+// Real-time Page Views Tracking
+model VehiclePageView {
+  id              String   @id @default(cuid())
+  vehicleId       String
+
+  sessionId       String   // Anonymous session identifier
+  viewType        String   // "listing" or "detail"
+  ipHash          String?  // Hashed IP for analytics (privacy-safe)
+  referrer        String?  // Where they came from
+
+  viewedAt        DateTime @default(now())
+
+  @@index([vehicleId])
+  @@index([viewedAt])
+  @@index([viewType])
+}
+
+// Real-time Active Viewers
+model ActiveViewer {
+  id              String   @id @default(cuid())
+  vehicleId       String
+
+  sessionId       String   // Anonymous session identifier
+  viewType        String   // "listing" or "detail"
+
+  lastSeenAt      DateTime @default(now())
+  expiresAt       DateTime // Session expires (set to now + 5 minutes)
+
+  createdAt       DateTime @default(now())
+
+  @@index([vehicleId])
+  @@index([viewType])
+  @@index([lastSeenAt])
+  @@index([expiresAt])
+}
+
+// Contract Signing Records
+model ContractSigning {
+  id                    String   @id @default(cuid())
+  bookingReference      String   @unique // Link to booking
+  customerName          String
+  customerEmail         String
+  contractHash          String   // SHA256 hash for verification
+  signedAt              DateTime // When the contract was signed
+
+  // Document paths (stored in public/contracts/{bookingReference}/)
+  idDocumentPath        String   // Path to ID/Driver's License
+  passportDocumentPath  String   // Path to Passport copy
+  signaturePath         String   // Path to digital signature image
+
+  // Audit trail
+  ipAddress             String   // IP address of signer
+  userAgent             String   // Browser user agent
+  status                String   @default("completed") // completed, verified, disputed
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([bookingReference])
+  @@index([customerEmail])
+  @@index([signedAt])
+  @@index([status])
+}
+
+// Company Documents (Permits, Contract Templates, Certifications)
+model Document {
+  id        String   @id @default(cuid())
+  type      String   // "business_permit" | "contract_template" | "certification"
+  title     String   // e.g., "Business Permit 2026", "Rental Contract Template"
+  filePath  String   // /public/documents/... (relative path for download)
+  fileName  String   // Original filename for download
+  fileSize  Int      // bytes
+  expiresAt DateTime?
+  uploadedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([expiresAt])
+}
+
+// Rental Reports (Auto-generated summaries of bookings)
+model RentalReport {
+  id              String   @id @default(cuid())
+  period          String   // "2026-04-23" (date generated)
+  startDate       DateTime
+  endDate         DateTime
+  totalBookings   Int      // total bookings in period
+  confirmedCount  Int      // confirmed bookings
+  activeCount     Int      // currently active
+  returnedCount   Int      // returned
+  cancelledCount  Int      // cancelled
+  totalRevenue    Int      // sum of finalPrice
+  depositCollected Int     // total deposits received
+  finalPayments   Int      // total final payments received
+  averageBooking  Int      // totalRevenue / totalBookings
+  paymentBreakdown Json    // { cash: count, gcash: count, maya: count }
+  topVehicles     Json     // [{ vehicleId, name, count, revenue }]
+  generatedAt     DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([period])
+  @@index([startDate])
+  @@index([generatedAt])
+}
+
+// AI Conversation History
+model AIConversation {
+  id            String   @id @default(cuid())
+
+  // Conversation metadata
+  title         String?  // Auto-generated from first message
+  category      String   // "business_strategy" | "social_media" | "marketing" | "operations" | "general"
+
+  // Messages
+  messages      AIMessage[]
+
+  // Admin tracking
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category])
+  @@index([createdAt])
+}
+
+// Individual messages in conversation
+model AIMessage {
+  id              String   @id @default(cuid())
+  conversationId  String
+  conversation    AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  // Message content
+  role            String   // "user" | "assistant" | "system"
+  content         String   // Message text (can be long)
+
+  // Metadata
+  tokensUsed      Int?     // For tracking API usage
+  createdAt       DateTime @default(now())
+
+  @@index([conversationId])
+  @@index([role])
+}
