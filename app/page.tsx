@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Icon } from '../components/ui/Icon';
 import { HeroSearch } from '../components/features/HeroSearch';
 import { LOCATIONS } from '../lib/locations';
-import { getPublicVehicles } from '../lib/vehicles-live';
+import { getPublicVehicles, type LiveVehicle } from '../lib/vehicles-live';
 
 const faqs = [
   { q: 'How do I book a scooter?', a: 'Select your scooter, pick your dates, choose delivery, and complete payment. Takes under 2 minutes. We confirm via WhatsApp.', image: '/models/honda-beat-110.jpeg', icon: 'ph:device-mobile-fill' },
@@ -16,7 +16,7 @@ const faqs = [
 export default async function HomePage() {
   // TEMPORARY FIX: Database query hanging - commenting out getPublicVehicles() to test server responsiveness
   // const vehicles = await getPublicVehicles();
-  const vehicles = [];
+  const vehicles: LiveVehicle[] = [];
   return (
     <div className="bg-neutral-50">
       {/* Hero */}

@@ -1,7 +1,7 @@
 import { prisma } from './db';
 import { vehicles as staticVehicles, type Vehicle } from './vehicles';
 
-type LiveVehicle = Vehicle & { visible: boolean };
+export type LiveVehicle = Vehicle & { visible: boolean };
 
 async function buildLiveVehicles(): Promise<LiveVehicle[]> {
   const dbRows = await prisma.vehicle.findMany({
