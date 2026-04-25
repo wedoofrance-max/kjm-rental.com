@@ -1595,7 +1595,26 @@ export default function AdminDashboard() {
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-neutral-950 text-white' : 'bg-white text-neutral-900'}`}>
-      <div className={`${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-neutral-50 border-neutral-200'} border-b px-6 py-4 flex items-center justify-between`}>
+      {/* Sidebar Navigation */}
+      <DashboardSidebar
+        tabs={[
+          { id: 'bookings', label: 'Bookings', icon: 'ph:calendar-bold' },
+          { id: 'vehicles', label: 'Vehicles', icon: 'ph:car-bold' },
+          { id: 'fleet', label: 'Fleet/Resources', icon: 'ph:motorcycle-bold' },
+          { id: 'documents', label: 'Documents', icon: 'ph:file-bold' },
+          { id: 'finance', label: 'Finance', icon: 'ph:chart-bar-bold' },
+          { id: 'marketing', label: 'Marketing', icon: 'ph:chart-line-bold' },
+          { id: 'ai-advisor', label: 'AI Advisor', icon: 'ph:sparkles-bold' },
+          { id: 'promotions', label: 'Promotions', icon: 'ph:tag-bold' },
+        ]}
+        activeTab={tab}
+        onTabChange={(tabId) => setTab(tabId as any)}
+        isDark={isDark}
+      />
+
+      {/* Main wrapper - offset for sidebar */}
+      <div className="lg:ml-20 transition-all duration-300">
+        <div className={`${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-neutral-50 border-neutral-200'} border-b px-6 py-4 flex items-center justify-between`}>
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-orange-700 flex items-center justify-center">
             <span className="text-white font-bold text-sm">K</span>
@@ -1656,11 +1675,8 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="flex h-screen">
-        {/* Main Content - Offset by sidebar */}
-        <div className="flex-1 overflow-y-auto ml-20 lg:ml-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-            {/* Stats */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[
             { label: 'Total Bookings', value: total, icon: 'ph:calendar-check-fill', color: 'text-white' },
@@ -1776,23 +1792,6 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-
-        {/* Sidebar Navigation */}
-        <DashboardSidebar
-          tabs={[
-            { id: 'bookings', label: 'Bookings', icon: 'ph:calendar-bold' },
-            { id: 'vehicles', label: 'Vehicles', icon: 'ph:car-bold' },
-            { id: 'fleet', label: 'Fleet/Resources', icon: 'ph:motorcycle-bold' },
-            { id: 'documents', label: 'Documents', icon: 'ph:file-bold' },
-            { id: 'finance', label: 'Finance', icon: 'ph:chart-bar-bold' },
-            { id: 'marketing', label: 'Marketing', icon: 'ph:chart-line-bold' },
-            { id: 'ai-advisor', label: 'AI Advisor', icon: 'ph:sparkles-bold' },
-            { id: 'promotions', label: 'Promotions', icon: 'ph:tag-bold' },
-          ]}
-          activeTab={tab}
-          onTabChange={(tabId) => setTab(tabId as any)}
-          isDark={isDark}
-        />
 
         {/* Bookings Tab */}
         {tab === 'bookings' && (
@@ -2383,11 +2382,10 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Block dates panel */}
-      {blockingVehicle && (
-        <BlockDatesPanel vehicle={blockingVehicle} onClose={() => setBlockingVehicle(null)} isDark={isDark} />
-      )}
-        </div>
+        {/* Block dates panel */}
+        {blockingVehicle && (
+          <BlockDatesPanel vehicle={blockingVehicle} onClose={() => setBlockingVehicle(null)} isDark={isDark} />
+        )}
       </div>
     </div>
   );

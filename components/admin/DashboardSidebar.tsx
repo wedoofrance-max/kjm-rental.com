@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Icon } from '../ui/Icon';
 
 interface SidebarTab {
@@ -20,7 +20,15 @@ export default function DashboardSidebar({
   onTabChange: (tabId: string) => void;
   isDark: boolean;
 }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return (
     <>
@@ -38,7 +46,7 @@ export default function DashboardSidebar({
       </button>
 
       {/* Sidebar Overlay (Mobile) */}
-      {isOpen && (
+      {isOpen && isMobile && (
         <div
           className="fixed inset-0 bg-black/50 lg:hidden z-30"
           onClick={() => setIsOpen(false)}
@@ -48,7 +56,9 @@ export default function DashboardSidebar({
       {/* Sidebar */}
       <div
         className={`fixed top-0 left-0 h-screen z-40 transition-all duration-300 ${
-          isOpen ? 'w-64' : 'w-20'
+          isMobile
+            ? isOpen ? 'w-64' : 'w-0'
+            : isOpen ? 'w-64' : 'w-20'
         } ${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'} border-r overflow-hidden`}
       >
         <div className="h-full flex flex-col">
