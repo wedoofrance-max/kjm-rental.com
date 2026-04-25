@@ -551,7 +551,7 @@ function Step3({
             type="tel"
             value={form.phone || ''}
             onChange={(e) => set('phone', e.target.value)}
-            placeholder="+63 917 123 4567"
+            placeholder="+63 917 123 4567 or +1 555 123 4567"
             className={`w-full px-4 py-3 rounded-xl border text-neutral-900 focus:outline-none focus:ring-2 transition-colors ${
               form.phone && !phoneValid
                 ? 'border-red-300 focus:border-red-400 focus:ring-red-100 bg-red-50'
@@ -561,7 +561,7 @@ function Step3({
             }`}
           />
           {form.phone && !phoneValid && (
-            <p className="text-xs text-red-600 mt-1">Invalid Philippine phone number format</p>
+            <p className="text-xs text-red-600 mt-1">Phone number must be 10-15 digits</p>
           )}
         </div>
       </div>

@@ -22,9 +22,8 @@ export function validateEmail(email: string): boolean {
 }
 
 export function validatePhoneNumber(phone: string): boolean {
-  const philippinePhoneRegex = /^(\+63|0)?9\d{9}$/;
   const cleaned = phone.replace(/\D/g, '');
-  return philippinePhoneRegex.test(cleaned);
+  return cleaned.length >= 10 && cleaned.length <= 15;
 }
 
 export function validatePickupDate(pickupDate: string): boolean {
