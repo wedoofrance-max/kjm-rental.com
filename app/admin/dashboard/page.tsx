@@ -1780,7 +1780,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tabs with Navigation */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-5 mb-6">
           <button
             onClick={() => {
               const container = document.getElementById('tabs-container');
