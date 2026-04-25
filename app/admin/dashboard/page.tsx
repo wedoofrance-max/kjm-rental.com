@@ -1445,6 +1445,13 @@ export default function AdminDashboard() {
   const [renewingBooking, setRenewingBooking] = useState(false);
   const [newReturnDate, setNewReturnDate] = useState('');
   const [renewalQuote, setRenewalQuote] = useState<{ days: number; price: number } | null>(null);
+  const [renewalSuccess, setRenewalSuccess] = useState<{
+    booking: Booking;
+    resignUrl: string;
+    additionalDays: number;
+    additionalPrice: number;
+    newTotalPrice: number;
+  } | null>(null);
   const [manualBookingForm, setManualBookingForm] = useState({
     firstName: '',
     lastName: '',
@@ -1665,16 +1672,14 @@ export default function AdminDashboard() {
       const data = await res.json();
 
       if (res.ok) {
-        const contractMsg = data.renewal.contractStatus === 'needs_resigning'
-          ? `\n\n📝 Contract has been invalidated. Customer must re-sign at:\n${window.location.origin}${data.renewal.contractResignUrl}`
-          : '';
-
-        alert(`✅ Booking renewed successfully!\n\nExtended by ${data.renewal.additionalDays} days\nAdditional cost: ₱${data.renewal.additionalPrice.toLocaleString('en-US')}\nNew total: ₱${data.renewal.newTotalPrice.toLocaleString('en-US')}${contractMsg}`);
-
-        // Copy resign URL to clipboard if needed
-        if (data.renewal.contractStatus === 'needs_resigning' && navigator.clipboard) {
-          navigator.clipboard.writeText(`${window.location.origin}${data.renewal.contractResignUrl}`).catch(() => {});
-        }
+        // Show success modal with re-sign instructions
+        setRenewalSuccess({
+          booking: showRenewBooking,
+          resignUrl: `${window.location.origin}${data.renewal.contractResignUrl}`,
+          additionalDays: data.renewal.additionalDays,
+          additionalPrice: data.renewal.additionalPrice,
+          newTotalPrice: data.renewal.newTotalPrice,
+        });
 
         setShowRenewBooking(null);
         setNewReturnDate('');
@@ -2513,10 +2518,16 @@ export default function AdminDashboard() {
             )}
 
             {/* Contract notice */}
-            <div className={`rounded-xl p-3 mb-4 ${isDark ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-yellow-50 border border-yellow-200'}`}>
-              <p className={`text-xs ${isDark ? 'text-yellow-300' : 'text-yellow-800'}`}>
-                ⚠️ <strong>Contract Update:</strong> Renewing this rental will require a new contract version. The customer will need to re-sign the updated contract reflecting the new return date and total amount.
+            <div className={`rounded-xl p-3 mb-4 ${isDark ? 'bg-blue-500/10 border border-blue-500/30' : 'bg-blue-50 border border-blue-200'}`}>
+              <p className={`text-xs font-bold mb-1 ${isDark ? 'text-blue-300' : 'text-blue-800'}`}>
+                📝 What happens next:
               </p>
+              <ol className={`text-xs space-y-1 ml-4 list-decimal ${isDark ? 'text-blue-200' : 'text-blue-700'}`}>
+                <li>The booking will be updated with the new return date and total</li>
+                <li>The current contract will be invalidated automatically</li>
+                <li>You'll get a unique link to send to the customer</li>
+                <li>Customer can re-sign via WhatsApp/Email link or in-person</li>
+              </ol>
             </div>
 
             {/* Action buttons */}
@@ -2539,6 +2550,113 @@ export default function AdminDashboard() {
                 {renewingBooking ? 'Renewing…' : 'Confirm Renewal'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Renewal Success Modal with Re-Sign Instructions */}
+      {renewalSuccess && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className={`${isDark ? 'bg-neutral-900' : 'bg-white'} rounded-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto`}>
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-success-500/20 flex items-center justify-center mx-auto mb-3">
+                <Icon icon="ph:check-circle-fill" width={40} height={40} style={{ color: '#22C55E' }} />
+              </div>
+              <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-neutral-900'} mb-1`}>
+                ✅ Rental Renewed!
+              </h3>
+              <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                Booking {renewalSuccess.booking.reference} extended by {renewalSuccess.additionalDays} days
+              </p>
+            </div>
+
+            {/* Renewal Summary */}
+            <div className={`rounded-xl p-4 mb-5 ${isDark ? 'bg-neutral-800' : 'bg-neutral-50'}`}>
+              <div className="flex justify-between mb-2">
+                <span className={`text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>Extra cost:</span>
+                <span className="text-sm font-bold text-primary-400">+₱{renewalSuccess.additionalPrice.toLocaleString('en-US')}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-current/10">
+                <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>New Total:</span>
+                <span className="text-lg font-bold text-primary-400">₱{renewalSuccess.newTotalPrice.toLocaleString('en-US')}</span>
+              </div>
+            </div>
+
+            {/* Re-sign Instructions */}
+            <div className={`rounded-xl p-4 mb-5 border-2 ${isDark ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-yellow-50 border-yellow-200'}`}>
+              <h4 className={`text-sm font-bold mb-2 ${isDark ? 'text-yellow-300' : 'text-yellow-800'}`}>
+                📝 Customer Must Re-Sign Contract
+              </h4>
+              <p className={`text-xs mb-3 ${isDark ? 'text-yellow-200' : 'text-yellow-700'}`}>
+                Send this link to the customer so they can re-sign the updated contract reflecting the new return date and total.
+              </p>
+
+              {/* Resign URL */}
+              <div className={`flex gap-2 p-2 rounded-lg ${isDark ? 'bg-neutral-900' : 'bg-white'} border ${isDark ? 'border-neutral-700' : 'border-neutral-200'}`}>
+                <input
+                  type="text"
+                  value={renewalSuccess.resignUrl}
+                  readOnly
+                  className={`flex-1 px-2 py-1.5 text-xs bg-transparent outline-none ${isDark ? 'text-white' : 'text-neutral-900'}`}
+                />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(renewalSuccess.resignUrl);
+                    alert('✅ Link copied to clipboard!');
+                  }}
+                  className={`px-3 py-1.5 text-xs font-bold rounded ${isDark ? 'bg-neutral-700 hover:bg-neutral-600 text-white' : 'bg-neutral-200 hover:bg-neutral-300 text-neutral-900'}`}
+                  title="Copy link"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Actions to Send */}
+            <div className="space-y-2 mb-5">
+              <p className={`text-xs font-bold uppercase ${isDark ? 'text-neutral-500' : 'text-neutral-600'}`}>
+                Send to Customer:
+              </p>
+
+              {/* WhatsApp Button */}
+              <a
+                href={`https://wa.me/${renewalSuccess.booking.customer.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${renewalSuccess.booking.customer.firstName}! Your KJM rental ${renewalSuccess.booking.reference} has been extended.\n\n📅 New return date: ${new Date(renewalSuccess.booking.returnDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n💰 New total: ₱${renewalSuccess.newTotalPrice.toLocaleString('en-US')}\n\nPlease re-sign the updated contract here:\n${renewalSuccess.resignUrl}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-success-500 hover:bg-success-600 text-white font-bold rounded-xl transition-colors"
+              >
+                <Icon icon="logos:whatsapp-icon" width={20} height={20} />
+                Send via WhatsApp
+              </a>
+
+              {/* Email Button */}
+              <a
+                href={`mailto:${renewalSuccess.booking.customer.email}?subject=${encodeURIComponent(`KJM Rental Renewal - ${renewalSuccess.booking.reference}`)}&body=${encodeURIComponent(`Hi ${renewalSuccess.booking.customer.firstName},\n\nYour KJM rental has been extended successfully.\n\nReference: ${renewalSuccess.booking.reference}\nNew return date: ${new Date(renewalSuccess.booking.returnDate).toLocaleDateString('en-GB')}\nNew total: ₱${renewalSuccess.newTotalPrice.toLocaleString('en-US')}\n\nPlease click the link below to re-sign the updated rental agreement:\n${renewalSuccess.resignUrl}\n\nThank you!\nKJM Motors Team`)}`}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-3 font-bold rounded-xl transition-colors ${isDark ? 'bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-700' : 'bg-white hover:bg-neutral-50 text-neutral-700 border border-neutral-300'}`}
+              >
+                <Icon icon="ph:envelope-fill" width={20} height={20} />
+                Send via Email
+              </a>
+
+              {/* Open Re-sign Page */}
+              <a
+                href={renewalSuccess.resignUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`w-full flex items-center justify-center gap-2 px-4 py-3 font-bold rounded-xl transition-colors ${isDark ? 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-400' : 'bg-blue-50 hover:bg-blue-100 text-blue-700'}`}
+              >
+                <Icon icon="ph:eye-fill" width={20} height={20} />
+                Preview Re-Sign Page
+              </a>
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setRenewalSuccess(null)}
+              className={`w-full px-4 py-3 text-sm font-bold rounded-xl transition-colors ${isDark ? 'bg-neutral-800 hover:bg-neutral-700 text-white' : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700'}`}
+            >
+              Done
+            </button>
           </div>
         </div>
       )}
