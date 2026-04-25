@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '../../../components/ui/Icon';
+import DashboardSidebar from '../../../components/admin/DashboardSidebar';
 import CameraCapture from '../../../components/admin/CameraCapture';
 import PromoCodesPanel from '../../../components/admin/PromoCodesPanel';
 import DocumentsTab from '../../../components/admin/DocumentsTab';
@@ -1655,8 +1656,13 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        {/* Stats */}
+      <div className="flex h-screen">
+        {/* Sidebar is fixed/relative */}
+
+        {/* Main Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[
             { label: 'Total Bookings', value: total, icon: 'ph:calendar-check-fill', color: 'text-white' },
@@ -1773,67 +1779,22 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Tabs with Navigation */}
-        <div className="flex items-center gap-5 mb-6">
-          <button
-            onClick={() => {
-              const container = document.getElementById('tabs-container');
-              if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
-            }}
-            className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
-              isDark
-                ? 'bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-800'
-                : 'bg-neutral-100 border border-neutral-300 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200'
-            }`}
-            title="Scroll left"
-          >
-            <Icon icon="ph:arrow-left-bold" width={18} height={18} />
-          </button>
-
-          <div id="tabs-container" className="flex gap-2 overflow-x-auto scrollbar-hide flex-1">
-            {[
-              { id: 'bookings', label: 'Bookings', icon: 'ph:calendar-bold' },
-              { id: 'vehicles', label: 'Vehicles', icon: 'ph:car-bold' },
-              { id: 'fleet', label: 'Fleet/Resources', icon: 'ph:motorcycle-bold' },
-              { id: 'documents', label: 'Documents', icon: 'ph:file-bold' },
-              { id: 'finance', label: 'Finance', icon: 'ph:chart-bar-bold' },
-              { id: 'marketing', label: 'Marketing', icon: 'ph:chart-line-bold' },
-              { id: 'ai-advisor', label: 'AI Advisor', icon: 'ph:sparkles-bold' },
-              { id: 'promotions', label: 'Promotions', icon: 'ph:tag-bold' },
-            ].map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id as any)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-colors whitespace-nowrap ${
-                  tab === t.id
-                    ? 'bg-primary-500 text-white shadow-lg'
-                    : isDark
-                      ? 'bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-600 hover:bg-neutral-800'
-                      : 'bg-neutral-100 border border-neutral-300 text-neutral-600 hover:text-neutral-900 hover:border-neutral-400 hover:bg-neutral-200'
-                }`}
-              >
-                {/* @ts-ignore */}
-                <Icon icon={t.icon} width={16} height={16} />
-                {t.label}
-              </button>
-            ))}
-          </div>
-
-          <button
-            onClick={() => {
-              const container = document.getElementById('tabs-container');
-              if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
-            }}
-            className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
-              isDark
-                ? 'bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-800'
-                : 'bg-neutral-100 border border-neutral-300 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200'
-            }`}
-            title="Scroll right"
-          >
-            <Icon icon="ph:arrow-right-bold" width={18} height={18} />
-          </button>
-        </div>
+        {/* Sidebar Navigation */}
+        <DashboardSidebar
+          tabs={[
+            { id: 'bookings', label: 'Bookings', icon: 'ph:calendar-bold' },
+            { id: 'vehicles', label: 'Vehicles', icon: 'ph:car-bold' },
+            { id: 'fleet', label: 'Fleet/Resources', icon: 'ph:motorcycle-bold' },
+            { id: 'documents', label: 'Documents', icon: 'ph:file-bold' },
+            { id: 'finance', label: 'Finance', icon: 'ph:chart-bar-bold' },
+            { id: 'marketing', label: 'Marketing', icon: 'ph:chart-line-bold' },
+            { id: 'ai-advisor', label: 'AI Advisor', icon: 'ph:sparkles-bold' },
+            { id: 'promotions', label: 'Promotions', icon: 'ph:tag-bold' },
+          ]}
+          activeTab={tab}
+          onTabChange={(tabId) => setTab(tabId as any)}
+          isDark={isDark}
+        />
 
         {/* Bookings Tab */}
         {tab === 'bookings' && (
@@ -2428,10 +2389,13 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Block dates panel */}
-      {blockingVehicle && (
-        <BlockDatesPanel vehicle={blockingVehicle} onClose={() => setBlockingVehicle(null)} isDark={isDark} />
-      )}
+            {/* Block dates panel */}
+            {blockingVehicle && (
+              <BlockDatesPanel vehicle={blockingVehicle} onClose={() => setBlockingVehicle(null)} isDark={isDark} />
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
