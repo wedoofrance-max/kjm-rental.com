@@ -23,9 +23,9 @@ async function buildLiveVehicles(): Promise<LiveVehicle[]> {
   });
 }
 
-export async function getPublicVehicles(): Promise<Vehicle[]> {
+export async function getPublicVehicles(): Promise<LiveVehicle[]> {
   // Add timeout to prevent hanging
-  const timeoutPromise = new Promise<Vehicle[]>((_, reject) =>
+  const timeoutPromise = new Promise<LiveVehicle[]>((_, reject) =>
     setTimeout(() => reject(new Error('Vehicle query timeout')), 5000)
   );
 
@@ -38,7 +38,7 @@ export async function getPublicVehicles(): Promise<Vehicle[]> {
   }
 }
 
-export async function getPublicVehicle(slug: string): Promise<Vehicle | null> {
+export async function getPublicVehicle(slug: string): Promise<LiveVehicle | null> {
   const all = await buildLiveVehicles();
   const v = all.find((x) => x.slug === slug);
   if (!v || !v.visible) return null;
