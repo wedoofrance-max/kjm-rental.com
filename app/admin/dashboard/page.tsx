@@ -1831,7 +1831,7 @@ export default function AdminDashboard() {
               </div>
               <input
                 type="text"
-                placeholder="🔍 Search bookings... (reference, customer, vehicle, plate)"
+                placeholder="🔍 Search bookings..."
                 value={searchBookings}
                 onChange={(e) => setSearchBookings(e.target.value.toLowerCase())}
                 className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-500 ${isDark ? 'bg-neutral-800 border border-neutral-700 text-white placeholder-neutral-500' : 'bg-white border border-neutral-300 text-neutral-900 placeholder-neutral-500'}`}

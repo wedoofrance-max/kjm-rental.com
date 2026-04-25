@@ -85,18 +85,49 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Assign the first available fleet unit (scooter)
-    const fleetUnit = await prisma.fleetUnit.findFirst({
+    // Get all fleet units for this vehicle type that are operational
+    const allUnits = await prisma.fleetUnit.findMany({
       where: {
         vehicleId,
-        status: 'available', // Only units that are not in maintenance or rented
+        status: 'available', // Only units that are not in maintenance/repair
       },
-      orderBy: { unitNumber: 'asc' }, // Assign in order (HB01, HB02, etc.)
+      orderBy: { unitNumber: 'asc' }, // Try units in order (HB01, HB02, etc.)
     });
+
+    if (allUnits.length === 0) {
+      return NextResponse.json(
+        { error: `No fleet units exist for this vehicle. Please contact support.` },
+        { status: 400 }
+      );
+    }
+
+    // Find a unit that has NO overlapping bookings during the requested dates
+    const pickupDateObj = new Date(pickupDate);
+    const returnDateObj = new Date(returnDate);
+    let fleetUnit = null;
+
+    for (const unit of allUnits) {
+      // Check for overlapping bookings on this specific fleet unit
+      const overlappingBookings = await prisma.booking.count({
+        where: {
+          fleetUnitId: unit.id,
+          status: { in: ['pending', 'confirmed', 'active'] }, // Exclude cancelled/returned
+          AND: [
+            { pickupDate: { lt: returnDateObj } },
+            { returnDate: { gt: pickupDateObj } },
+          ],
+        },
+      });
+
+      if (overlappingBookings === 0) {
+        fleetUnit = unit;
+        break; // Found an available unit, use it
+      }
+    }
 
     if (!fleetUnit) {
       return NextResponse.json(
-        { error: `No ${vehicleId} units available for these dates. Please try different dates or another vehicle.` },
+        { error: `All units of this vehicle are booked for the selected dates. Please choose different dates or another vehicle.` },
         { status: 400 }
       );
     }

@@ -82,8 +82,8 @@ export async function POST(request: NextRequest) {
 
     const finalPrice = totalPrice - autoDiscount;
 
-    // Auto-assign first available fleet unit
-    const fleetUnit = await prisma.fleetUnit.findFirst({
+    // Get all operational fleet units for this vehicle
+    const allUnits = await prisma.fleetUnit.findMany({
       where: {
         vehicleId,
         status: 'available',
@@ -91,9 +91,36 @@ export async function POST(request: NextRequest) {
       orderBy: { unitNumber: 'asc' },
     });
 
+    if (allUnits.length === 0) {
+      return NextResponse.json(
+        { error: 'No fleet units exist for the selected vehicle' },
+        { status: 400 }
+      );
+    }
+
+    // Find a unit with NO overlapping bookings during the requested dates
+    let fleetUnit = null;
+    for (const unit of allUnits) {
+      const overlappingBookings = await prisma.booking.count({
+        where: {
+          fleetUnitId: unit.id,
+          status: { in: ['pending', 'confirmed', 'active'] },
+          AND: [
+            { pickupDate: { lt: returnDateObj } },
+            { returnDate: { gt: pickup } },
+          ],
+        },
+      });
+
+      if (overlappingBookings === 0) {
+        fleetUnit = unit;
+        break;
+      }
+    }
+
     if (!fleetUnit) {
       return NextResponse.json(
-        { error: 'No available fleet units for the selected vehicle' },
+        { error: 'All units of this vehicle are booked for the selected dates' },
         { status: 400 }
       );
     }
