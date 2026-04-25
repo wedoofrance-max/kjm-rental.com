@@ -1657,10 +1657,8 @@ export default function AdminDashboard() {
       </div>
 
       <div className="flex h-screen">
-        {/* Sidebar is fixed/relative */}
-
-        {/* Main Content */}
-        <div className="flex-1 overflow-y-auto">
+        {/* Main Content - Offset by sidebar */}
+        <div className="flex-1 overflow-y-auto ml-20 lg:ml-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
             {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">

@@ -47,8 +47,8 @@ export default function DashboardSidebar({
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:relative top-0 left-0 h-full z-40 transition-all duration-300 ${
-          isOpen ? 'w-64' : 'w-0 lg:w-20'
+        className={`fixed top-0 left-0 h-screen z-40 transition-all duration-300 ${
+          isOpen ? 'w-64' : 'w-20'
         } ${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'} border-r overflow-hidden`}
       >
         <div className="h-full flex flex-col">
