@@ -197,6 +197,10 @@ export const BookingScalarFieldEnum = {
   autoDiscount: 'autoDiscount',
   promoDiscount: 'promoDiscount',
   finalPrice: 'finalPrice',
+  renewedAt: 'renewedAt',
+  originalReturnDate: 'originalReturnDate',
+  renewalCount: 'renewalCount',
+  renewalAmount: 'renewalAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -25,12 +25,17 @@ type Booking = {
   pickupLocation: string;
   pickupAddress?: string;
   totalPrice: number;
+  finalPrice?: number;
   depositPaid: boolean;
   createdAt: string;
   vehicle: { brand: string; model: string; engine: string };
   customer: { firstName: string; lastName: string; email: string; phone: string; nationality?: string };
   payment: { method: string; status: string } | null;
   fleetUnit?: { id: string; unitNumber: string; licensePlate: string };
+  renewedAt?: string | null;
+  originalReturnDate?: string | null;
+  renewalCount?: number;
+  renewalAmount?: number;
 };
 
 type Vehicle = {
@@ -1472,10 +1477,17 @@ export default function AdminDashboard() {
 
   const fetchBookings = useCallback(async () => {
     setLoadingBookings(true);
-    const url = filter === 'all' ? '/api/admin/bookings' : `/api/admin/bookings?status=${filter}`;
+    // 'renewed' is a special filter handled client-side, fetch all and filter
+    const url = (filter === 'all' || filter === 'renewed')
+      ? '/api/admin/bookings'
+      : `/api/admin/bookings?status=${filter}`;
     const res = await fetch(url);
     if (res.status === 401) { router.push('/admin'); return; }
-    setBookings(await res.json());
+    let data = await res.json();
+    if (filter === 'renewed') {
+      data = data.filter((b: any) => b.renewedAt);
+    }
+    setBookings(data);
     setLoadingBookings(false);
   }, [filter, router]);
 
@@ -1684,7 +1696,8 @@ export default function AdminDashboard() {
     .filter((b) => !['cancelled'].includes(b.status))
     .reduce((s, b) => s + b.totalPrice, 0);
 
-  const FILTERS = ['all', 'pending', 'confirmed', 'active', 'returned', 'cancelled'];
+  const FILTERS = ['all', 'renewed', 'pending', 'confirmed', 'active', 'returned', 'cancelled'];
+  const renewedCount = bookings.filter((b: any) => b.renewedAt).length;
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-neutral-950 text-white' : 'bg-white text-neutral-900'}`}>
@@ -1770,11 +1783,12 @@ export default function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8">
           {[
             { label: 'Total Bookings', value: total, icon: 'ph:calendar-check-fill', color: 'text-white' },
             { label: 'Pending', value: pending, icon: 'ph:clock-fill', color: 'text-yellow-400' },
             { label: 'Active Now', value: active, icon: 'ph:motorcycle-fill', color: 'text-green-400' },
+            { label: 'Renewed', value: renewedCount, icon: 'ph:arrow-clockwise-fill', color: 'text-blue-400' },
             { label: 'Total Revenue', value: `₱${revenue.toLocaleString('en-US')}`, icon: 'ph:money-fill', color: 'text-primary-400' },
           ].map((s) => (
             <div key={s.label} className={`${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-neutral-50 border-neutral-200'} border rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5`}>
@@ -1910,15 +1924,25 @@ export default function AdminDashboard() {
                   <button
                     key={f}
                     onClick={() => setFilter(f)}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize whitespace-nowrap transition-colors ${
+                    className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize whitespace-nowrap transition-colors flex items-center gap-1.5 ${
                       filter === f
-                        ? 'bg-primary-500 text-white'
+                        ? f === 'renewed' ? 'bg-blue-500 text-white' : 'bg-primary-500 text-white'
                         : isDark
                           ? 'bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-600'
                           : 'bg-neutral-100 border border-neutral-300 text-neutral-600 hover:text-neutral-900 hover:border-neutral-400'
                     }`}
                   >
+                    {f === 'renewed' && (
+                      <Icon icon="ph:arrow-clockwise-bold" width={14} height={14} />
+                    )}
                     {f === 'all' ? 'All' : f}
+                    {f === 'renewed' && renewedCount > 0 && (
+                      <span className={`ml-1 px-1.5 py-0.5 rounded-full text-xs font-bold ${
+                        filter === f ? 'bg-white/20 text-white' : 'bg-blue-500/20 text-blue-400'
+                      }`}>
+                        {renewedCount}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -1968,7 +1992,15 @@ export default function AdminDashboard() {
                         return (
                           <tr key={b.id} onClick={() => setSelected(b)} className={`cursor-pointer transition-colors ${isDark ? 'hover:bg-neutral-800/50' : 'hover:bg-neutral-50'}`}>
                             <td className="px-4 py-3 whitespace-nowrap">
-                              <span className="font-mono text-xs font-bold text-primary-400">{b.reference}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-xs font-bold text-primary-400">{b.reference}</span>
+                                {b.renewedAt && (
+                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold rounded-full" title={`Renewed ${b.renewalCount}x`}>
+                                    <Icon icon="ph:arrow-clockwise-bold" width={10} height={10} />
+                                    {b.renewalCount && b.renewalCount > 1 ? `×${b.renewalCount}` : 'RENEWED'}
+                                  </span>
+                                )}
+                              </div>
                               <p className={`text-xs mt-0.5 ${isDark ? 'text-neutral-600' : 'text-neutral-500'}`}>{fmt(b.createdAt)}</p>
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
@@ -2211,6 +2243,47 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              {/* Renewal status (if previously renewed) */}
+              {selected.renewedAt && (
+                <div className={`rounded-xl p-4 border ${isDark ? 'bg-blue-500/10 border-blue-500/30' : 'bg-blue-50 border-blue-200'}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon icon="ph:arrow-clockwise-bold" width={18} height={18} style={{ color: '#3b82f6' }} />
+                    <span className={`text-sm font-bold ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                      Renewed Rental
+                    </span>
+                    {selected.renewalCount && selected.renewalCount > 1 && (
+                      <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-full">
+                        ×{selected.renewalCount}
+                      </span>
+                    )}
+                  </div>
+                  <div className="space-y-1 text-xs">
+                    {selected.originalReturnDate && (
+                      <div className="flex justify-between">
+                        <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>Original return:</span>
+                        <span className={`font-semibold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                          {fmt(selected.originalReturnDate)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>Last renewed:</span>
+                      <span className={`font-semibold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                        {fmt(selected.renewedAt)}
+                      </span>
+                    </div>
+                    {selected.renewalAmount && selected.renewalAmount > 0 && (
+                      <div className="flex justify-between">
+                        <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>Added revenue:</span>
+                        <span className="font-bold text-green-400">
+                          +₱{selected.renewalAmount.toLocaleString('en-US')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Renewal button - only for confirmed/active bookings */}
               {['confirmed', 'active'].includes(selected.status) && (
                 <div>
@@ -2226,7 +2299,7 @@ export default function AdminDashboard() {
                   >
                     {/* @ts-ignore */}
                     <Icon icon="ph:arrow-clockwise-bold" width={18} height={18} />
-                    Renew / Extend Rental
+                    {selected.renewedAt ? 'Renew Again' : 'Renew / Extend Rental'}
                   </button>
                   <p className={`text-xs mt-2 text-center ${isDark ? 'text-neutral-500' : 'text-neutral-600'}`}>
                     Extends the rental period and updates the contract

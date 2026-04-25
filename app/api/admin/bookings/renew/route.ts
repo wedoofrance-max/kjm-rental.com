@@ -105,13 +105,18 @@ export async function POST(request: NextRequest) {
     const newTotalPrice = booking.totalPrice + additionalPrice;
     const newFinalPrice = (booking.finalPrice || booking.totalPrice) + additionalPrice;
 
-    // Update the booking
+    // Update the booking with renewal tracking
     const updatedBooking = await prisma.booking.update({
       where: { id: bookingId },
       data: {
         returnDate: newReturnDateObj,
         totalPrice: newTotalPrice,
         finalPrice: newFinalPrice,
+        renewedAt: new Date(),
+        // Save original return date only on first renewal
+        originalReturnDate: booking.originalReturnDate || currentReturnDate,
+        renewalCount: (booking.renewalCount || 0) + 1,
+        renewalAmount: (booking.renewalAmount || 0) + additionalPrice,
       },
       include: {
         customer: true,

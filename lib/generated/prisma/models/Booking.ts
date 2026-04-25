@@ -32,6 +32,8 @@ export type BookingAvgAggregateOutputType = {
   autoDiscount: number | null
   promoDiscount: number | null
   finalPrice: number | null
+  renewalCount: number | null
+  renewalAmount: number | null
 }
 
 export type BookingSumAggregateOutputType = {
@@ -40,6 +42,8 @@ export type BookingSumAggregateOutputType = {
   autoDiscount: number | null
   promoDiscount: number | null
   finalPrice: number | null
+  renewalCount: number | null
+  renewalAmount: number | null
 }
 
 export type BookingMinAggregateOutputType = {
@@ -61,6 +65,10 @@ export type BookingMinAggregateOutputType = {
   autoDiscount: number | null
   promoDiscount: number | null
   finalPrice: number | null
+  renewedAt: Date | null
+  originalReturnDate: Date | null
+  renewalCount: number | null
+  renewalAmount: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -84,6 +92,10 @@ export type BookingMaxAggregateOutputType = {
   autoDiscount: number | null
   promoDiscount: number | null
   finalPrice: number | null
+  renewedAt: Date | null
+  originalReturnDate: Date | null
+  renewalCount: number | null
+  renewalAmount: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -107,6 +119,10 @@ export type BookingCountAggregateOutputType = {
   autoDiscount: number
   promoDiscount: number
   finalPrice: number
+  renewedAt: number
+  originalReturnDate: number
+  renewalCount: number
+  renewalAmount: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -119,6 +135,8 @@ export type BookingAvgAggregateInputType = {
   autoDiscount?: true
   promoDiscount?: true
   finalPrice?: true
+  renewalCount?: true
+  renewalAmount?: true
 }
 
 export type BookingSumAggregateInputType = {
@@ -127,6 +145,8 @@ export type BookingSumAggregateInputType = {
   autoDiscount?: true
   promoDiscount?: true
   finalPrice?: true
+  renewalCount?: true
+  renewalAmount?: true
 }
 
 export type BookingMinAggregateInputType = {
@@ -148,6 +168,10 @@ export type BookingMinAggregateInputType = {
   autoDiscount?: true
   promoDiscount?: true
   finalPrice?: true
+  renewedAt?: true
+  originalReturnDate?: true
+  renewalCount?: true
+  renewalAmount?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -171,6 +195,10 @@ export type BookingMaxAggregateInputType = {
   autoDiscount?: true
   promoDiscount?: true
   finalPrice?: true
+  renewedAt?: true
+  originalReturnDate?: true
+  renewalCount?: true
+  renewalAmount?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -194,6 +222,10 @@ export type BookingCountAggregateInputType = {
   autoDiscount?: true
   promoDiscount?: true
   finalPrice?: true
+  renewedAt?: true
+  originalReturnDate?: true
+  renewalCount?: true
+  renewalAmount?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -304,6 +336,10 @@ export type BookingGroupByOutputType = {
   autoDiscount: number
   promoDiscount: number
   finalPrice: number
+  renewedAt: Date | null
+  originalReturnDate: Date | null
+  renewalCount: number
+  renewalAmount: number
   createdAt: Date
   updatedAt: Date
   _count: BookingCountAggregateOutputType | null
@@ -350,6 +386,10 @@ export type BookingWhereInput = {
   autoDiscount?: Prisma.IntFilter<"Booking"> | number
   promoDiscount?: Prisma.IntFilter<"Booking"> | number
   finalPrice?: Prisma.IntFilter<"Booking"> | number
+  renewedAt?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  originalReturnDate?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  renewalCount?: Prisma.IntFilter<"Booking"> | number
+  renewalAmount?: Prisma.IntFilter<"Booking"> | number
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
@@ -379,6 +419,10 @@ export type BookingOrderByWithRelationInput = {
   autoDiscount?: Prisma.SortOrder
   promoDiscount?: Prisma.SortOrder
   finalPrice?: Prisma.SortOrder
+  renewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalReturnDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  renewalCount?: Prisma.SortOrder
+  renewalAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
@@ -411,6 +455,10 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   autoDiscount?: Prisma.IntFilter<"Booking"> | number
   promoDiscount?: Prisma.IntFilter<"Booking"> | number
   finalPrice?: Prisma.IntFilter<"Booking"> | number
+  renewedAt?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  originalReturnDate?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  renewalCount?: Prisma.IntFilter<"Booking"> | number
+  renewalAmount?: Prisma.IntFilter<"Booking"> | number
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
@@ -440,6 +488,10 @@ export type BookingOrderByWithAggregationInput = {
   autoDiscount?: Prisma.SortOrder
   promoDiscount?: Prisma.SortOrder
   finalPrice?: Prisma.SortOrder
+  renewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalReturnDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  renewalCount?: Prisma.SortOrder
+  renewalAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.BookingCountOrderByAggregateInput
@@ -471,6 +523,10 @@ export type BookingScalarWhereWithAggregatesInput = {
   autoDiscount?: Prisma.IntWithAggregatesFilter<"Booking"> | number
   promoDiscount?: Prisma.IntWithAggregatesFilter<"Booking"> | number
   finalPrice?: Prisma.IntWithAggregatesFilter<"Booking"> | number
+  renewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
+  originalReturnDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
+  renewalCount?: Prisma.IntWithAggregatesFilter<"Booking"> | number
+  renewalAmount?: Prisma.IntWithAggregatesFilter<"Booking"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
 }
@@ -490,6 +546,10 @@ export type BookingCreateInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -519,6 +579,10 @@ export type BookingUncheckedCreateInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutBookingInput
@@ -540,6 +604,10 @@ export type BookingUpdateInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutBookingsNestedInput
@@ -569,6 +637,10 @@ export type BookingUncheckedUpdateInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutBookingNestedInput
@@ -594,6 +666,10 @@ export type BookingCreateManyInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -613,6 +689,10 @@ export type BookingUpdateManyMutationInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -636,6 +716,10 @@ export type BookingUncheckedUpdateManyInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -669,6 +753,10 @@ export type BookingCountOrderByAggregateInput = {
   autoDiscount?: Prisma.SortOrder
   promoDiscount?: Prisma.SortOrder
   finalPrice?: Prisma.SortOrder
+  renewedAt?: Prisma.SortOrder
+  originalReturnDate?: Prisma.SortOrder
+  renewalCount?: Prisma.SortOrder
+  renewalAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -679,6 +767,8 @@ export type BookingAvgOrderByAggregateInput = {
   autoDiscount?: Prisma.SortOrder
   promoDiscount?: Prisma.SortOrder
   finalPrice?: Prisma.SortOrder
+  renewalCount?: Prisma.SortOrder
+  renewalAmount?: Prisma.SortOrder
 }
 
 export type BookingMaxOrderByAggregateInput = {
@@ -700,6 +790,10 @@ export type BookingMaxOrderByAggregateInput = {
   autoDiscount?: Prisma.SortOrder
   promoDiscount?: Prisma.SortOrder
   finalPrice?: Prisma.SortOrder
+  renewedAt?: Prisma.SortOrder
+  originalReturnDate?: Prisma.SortOrder
+  renewalCount?: Prisma.SortOrder
+  renewalAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -723,6 +817,10 @@ export type BookingMinOrderByAggregateInput = {
   autoDiscount?: Prisma.SortOrder
   promoDiscount?: Prisma.SortOrder
   finalPrice?: Prisma.SortOrder
+  renewedAt?: Prisma.SortOrder
+  originalReturnDate?: Prisma.SortOrder
+  renewalCount?: Prisma.SortOrder
+  renewalAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -733,6 +831,8 @@ export type BookingSumOrderByAggregateInput = {
   autoDiscount?: Prisma.SortOrder
   promoDiscount?: Prisma.SortOrder
   finalPrice?: Prisma.SortOrder
+  renewalCount?: Prisma.SortOrder
+  renewalAmount?: Prisma.SortOrder
 }
 
 export type BookingScalarRelationFilter = {
@@ -951,6 +1051,10 @@ export type BookingCreateWithoutVehicleInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -978,6 +1082,10 @@ export type BookingUncheckedCreateWithoutVehicleInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutBookingInput
@@ -1031,6 +1139,10 @@ export type BookingScalarWhereInput = {
   autoDiscount?: Prisma.IntFilter<"Booking"> | number
   promoDiscount?: Prisma.IntFilter<"Booking"> | number
   finalPrice?: Prisma.IntFilter<"Booking"> | number
+  renewedAt?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  originalReturnDate?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  renewalCount?: Prisma.IntFilter<"Booking"> | number
+  renewalAmount?: Prisma.IntFilter<"Booking"> | number
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
 }
@@ -1050,6 +1162,10 @@ export type BookingCreateWithoutFleetUnitInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -1077,6 +1193,10 @@ export type BookingUncheckedCreateWithoutFleetUnitInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutBookingInput
@@ -1123,6 +1243,10 @@ export type BookingCreateWithoutCustomerInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   vehicle: Prisma.VehicleCreateNestedOneWithoutBookingsInput
@@ -1150,6 +1274,10 @@ export type BookingUncheckedCreateWithoutCustomerInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutBookingInput
@@ -1196,6 +1324,10 @@ export type BookingCreateWithoutPromoCodeInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -1223,6 +1355,10 @@ export type BookingUncheckedCreateWithoutPromoCodeInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutBookingInput
@@ -1269,6 +1405,10 @@ export type BookingCreateWithoutAddonInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -1297,6 +1437,10 @@ export type BookingUncheckedCreateWithoutAddonInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutBookingInput
@@ -1333,6 +1477,10 @@ export type BookingUpdateWithoutAddonInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutBookingsNestedInput
@@ -1361,6 +1509,10 @@ export type BookingUncheckedUpdateWithoutAddonInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutBookingNestedInput
@@ -1381,6 +1533,10 @@ export type BookingCreateWithoutPaymentInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -1409,6 +1565,10 @@ export type BookingUncheckedCreateWithoutPaymentInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   addon?: Prisma.AddonUncheckedCreateNestedManyWithoutBookingInput
@@ -1445,6 +1605,10 @@ export type BookingUpdateWithoutPaymentInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutBookingsNestedInput
@@ -1473,6 +1637,10 @@ export type BookingUncheckedUpdateWithoutPaymentInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   addon?: Prisma.AddonUncheckedUpdateManyWithoutBookingNestedInput
@@ -1496,6 +1664,10 @@ export type BookingCreateManyVehicleInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1515,6 +1687,10 @@ export type BookingUpdateWithoutVehicleInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutBookingsNestedInput
@@ -1542,6 +1718,10 @@ export type BookingUncheckedUpdateWithoutVehicleInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutBookingNestedInput
@@ -1566,6 +1746,10 @@ export type BookingUncheckedUpdateManyWithoutVehicleInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1588,6 +1772,10 @@ export type BookingCreateManyFleetUnitInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1607,6 +1795,10 @@ export type BookingUpdateWithoutFleetUnitInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutBookingsNestedInput
@@ -1634,6 +1826,10 @@ export type BookingUncheckedUpdateWithoutFleetUnitInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutBookingNestedInput
@@ -1658,6 +1854,10 @@ export type BookingUncheckedUpdateManyWithoutFleetUnitInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1680,6 +1880,10 @@ export type BookingCreateManyCustomerInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1699,6 +1903,10 @@ export type BookingUpdateWithoutCustomerInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vehicle?: Prisma.VehicleUpdateOneRequiredWithoutBookingsNestedInput
@@ -1726,6 +1934,10 @@ export type BookingUncheckedUpdateWithoutCustomerInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutBookingNestedInput
@@ -1750,6 +1962,10 @@ export type BookingUncheckedUpdateManyWithoutCustomerInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1772,6 +1988,10 @@ export type BookingCreateManyPromoCodeInput = {
   autoDiscount?: number
   promoDiscount?: number
   finalPrice?: number
+  renewedAt?: Date | string | null
+  originalReturnDate?: Date | string | null
+  renewalCount?: number
+  renewalAmount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1791,6 +2011,10 @@ export type BookingUpdateWithoutPromoCodeInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutBookingsNestedInput
@@ -1818,6 +2042,10 @@ export type BookingUncheckedUpdateWithoutPromoCodeInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutBookingNestedInput
@@ -1842,6 +2070,10 @@ export type BookingUncheckedUpdateManyWithoutPromoCodeInput = {
   autoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   promoDiscount?: Prisma.IntFieldUpdateOperationsInput | number
   finalPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  renewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originalReturnDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  renewalCount?: Prisma.IntFieldUpdateOperationsInput | number
+  renewalAmount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1896,6 +2128,10 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   autoDiscount?: boolean
   promoDiscount?: boolean
   finalPrice?: boolean
+  renewedAt?: boolean
+  originalReturnDate?: boolean
+  renewalCount?: boolean
+  renewalAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
@@ -1926,6 +2162,10 @@ export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   autoDiscount?: boolean
   promoDiscount?: boolean
   finalPrice?: boolean
+  renewedAt?: boolean
+  originalReturnDate?: boolean
+  renewalCount?: boolean
+  renewalAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
@@ -1953,6 +2193,10 @@ export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   autoDiscount?: boolean
   promoDiscount?: boolean
   finalPrice?: boolean
+  renewedAt?: boolean
+  originalReturnDate?: boolean
+  renewalCount?: boolean
+  renewalAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
@@ -1980,11 +2224,15 @@ export type BookingSelectScalar = {
   autoDiscount?: boolean
   promoDiscount?: boolean
   finalPrice?: boolean
+  renewedAt?: boolean
+  originalReturnDate?: boolean
+  renewalCount?: boolean
+  renewalAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reference" | "customerId" | "vehicleId" | "fleetUnitId" | "pickupDate" | "returnDate" | "pickupLocation" | "pickupAddress" | "status" | "totalPrice" | "depositRequired" | "depositPaid" | "promoCodeId" | "discountType" | "autoDiscount" | "promoDiscount" | "finalPrice" | "createdAt" | "updatedAt", ExtArgs["result"]["booking"]>
+export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reference" | "customerId" | "vehicleId" | "fleetUnitId" | "pickupDate" | "returnDate" | "pickupLocation" | "pickupAddress" | "status" | "totalPrice" | "depositRequired" | "depositPaid" | "promoCodeId" | "discountType" | "autoDiscount" | "promoDiscount" | "finalPrice" | "renewedAt" | "originalReturnDate" | "renewalCount" | "renewalAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["booking"]>
 export type BookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
@@ -2036,6 +2284,10 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     autoDiscount: number
     promoDiscount: number
     finalPrice: number
+    renewedAt: Date | null
+    originalReturnDate: Date | null
+    renewalCount: number
+    renewalAmount: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["booking"]>
@@ -2485,6 +2737,10 @@ export interface BookingFieldRefs {
   readonly autoDiscount: Prisma.FieldRef<"Booking", 'Int'>
   readonly promoDiscount: Prisma.FieldRef<"Booking", 'Int'>
   readonly finalPrice: Prisma.FieldRef<"Booking", 'Int'>
+  readonly renewedAt: Prisma.FieldRef<"Booking", 'DateTime'>
+  readonly originalReturnDate: Prisma.FieldRef<"Booking", 'DateTime'>
+  readonly renewalCount: Prisma.FieldRef<"Booking", 'Int'>
+  readonly renewalAmount: Prisma.FieldRef<"Booking", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Booking", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Booking", 'DateTime'>
 }

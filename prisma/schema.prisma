@@ -171,6 +171,12 @@ model Booking {
   promoDiscount Int      @default(0) // Value of promo code discount (₱X)
   finalPrice    Int      @default(0) // Final price after all discounts
 
+  // Renewal tracking
+  renewedAt          DateTime? // Last renewal timestamp
+  originalReturnDate DateTime? // Original return date before any renewal
+  renewalCount       Int       @default(0) // Number of times renewed
+  renewalAmount      Int       @default(0) // Total additional amount from renewals
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
