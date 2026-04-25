@@ -1859,7 +1859,7 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            <div className="space-y-4 mb-6">
+            <div className="space-y-5 mb-6">
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
                 {FILTERS.map((f) => (
                   <button
