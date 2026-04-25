@@ -658,6 +658,31 @@ function Step4({
         ))}
       </div>
 
+      {/* GCash QR Code */}
+      {paymentMethod === 'gcash' && (
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-300 p-6 mb-6">
+          <div className="text-center mb-4">
+            <p className="text-sm font-bold text-blue-900 mb-2">💳 GCash Payment</p>
+            <p className="text-xs text-blue-700">Scan the QR code to pay</p>
+          </div>
+          <div className="bg-white rounded-xl p-6 flex flex-col items-center mb-4">
+            <Image
+              src="/gcash-qr.jpg"
+              alt="GCash QR Code"
+              width={280}
+              height={320}
+              className="rounded-lg"
+              priority
+            />
+          </div>
+          <div className="bg-white/80 rounded-lg p-3 text-center text-xs text-neutral-700 space-y-1">
+            <p className="font-semibold text-blue-900">KJM Motors GCash</p>
+            <p>Mobile: 0975 298 4845</p>
+            <p className="text-neutral-500">Transfer fees may apply</p>
+          </div>
+        </div>
+      )}
+
       {/* Booking summary */}
       <div className="bg-neutral-50 rounded-xl border border-neutral-200 p-4 mb-6">
         <p className="text-sm font-bold text-neutral-800 mb-3">Booking summary</p>
