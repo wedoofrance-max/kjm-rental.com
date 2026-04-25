@@ -14,9 +14,14 @@ const faqs = [
 ];
 
 export default async function HomePage() {
-  // TEMPORARY FIX: Database query hanging - commenting out getPublicVehicles() to test server responsiveness
-  // const vehicles = await getPublicVehicles();
-  const vehicles: LiveVehicle[] = [];
+  let vehicles: LiveVehicle[] = [];
+  try {
+    vehicles = await getPublicVehicles();
+  } catch (err) {
+    console.error('Error fetching public vehicles:', err);
+    // Gracefully degrade - show empty state instead of crashing
+    vehicles = [];
+  }
   return (
     <div className="bg-neutral-50">
       {/* Hero */}

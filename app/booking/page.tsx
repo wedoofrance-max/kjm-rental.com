@@ -7,25 +7,7 @@ import Link from 'next/link';
 import { Icon } from '../../components/ui/Icon';
 import ContractSigner from '../../components/booking/ContractSigner';
 import { vehicles } from '../../lib/vehicles';
-
-// ─── Pricing util ────────────────────────────────────────────────────────────
-function calcPrice(daily: number, weekly: number, monthly: number, days: number) {
-  if (days >= 28) {
-    const months = Math.floor(days / 28);
-    const rem = days % 28;
-    return months * monthly + rem * daily;
-  }
-  if (days >= 7) {
-    const weeks = Math.floor(days / 7);
-    const rem = days % 7;
-    return weeks * weekly + rem * daily;
-  }
-  return days * daily;
-}
-
-function daysBetween(a: string, b: string) {
-  return Math.max(1, Math.ceil((new Date(b).getTime() - new Date(a).getTime()) / 86400000));
-}
+import { calcPrice, daysBetween, validateEmail, validatePhoneNumber, validatePickupDate, validateReturnDate } from '../../lib/booking-utils';
 
 // ─── Step indicator ──────────────────────────────────────────────────────────
 function StepBar({ step }: { step: number }) {
@@ -216,6 +198,18 @@ function Step1({
     try {
       const days = daysBetween(pickupDate, returnDate);
       const vehicleId = `vehicle-${vehicles.findIndex((v) => v.slug === selectedSlug) + 1}`;
+
+      if (!validatePickupDate(pickupDate)) {
+        setPromoError('Pickup date cannot be in the past');
+        setPromoValid(false);
+        return;
+      }
+
+      if (!validateReturnDate(pickupDate, returnDate)) {
+        setPromoError('Return date must be after pickup date');
+        setPromoValid(false);
+        return;
+      }
 
       const res = await fetch('/api/promo-codes/validate', {
         method: 'POST',
@@ -502,7 +496,9 @@ function Step3({
   onBack: () => void;
 }) {
   const set = (k: string, v: string) => setForm({ ...form, [k]: v });
-  const canNext = form.firstName && form.lastName && form.email && form.phone;
+  const emailValid = !form.email || validateEmail(form.email);
+  const phoneValid = !form.phone || validatePhoneNumber(form.phone);
+  const canNext = form.firstName && form.lastName && form.email && form.phone && emailValid && phoneValid;
 
   return (
     <div>
@@ -537,8 +533,17 @@ function Step3({
             value={form.email || ''}
             onChange={(e) => set('email', e.target.value)}
             placeholder="john@example.com"
-            className="w-full px-4 py-3 rounded-xl border border-neutral-200 text-neutral-900 focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100 bg-white"
+            className={`w-full px-4 py-3 rounded-xl border text-neutral-900 focus:outline-none focus:ring-2 transition-colors ${
+              form.email && !emailValid
+                ? 'border-red-300 focus:border-red-400 focus:ring-red-100 bg-red-50'
+                : form.email && emailValid
+                ? 'border-success-300 focus:border-success-400 focus:ring-success-100 bg-success-50'
+                : 'border-neutral-200 focus:border-primary-400 focus:ring-primary-100 bg-white'
+            }`}
           />
+          {form.email && !emailValid && (
+            <p className="text-xs text-red-600 mt-1">Invalid email format</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-semibold text-neutral-700 mb-2">Phone / WhatsApp *</label>
@@ -547,8 +552,17 @@ function Step3({
             value={form.phone || ''}
             onChange={(e) => set('phone', e.target.value)}
             placeholder="+63 917 123 4567"
-            className="w-full px-4 py-3 rounded-xl border border-neutral-200 text-neutral-900 focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100 bg-white"
+            className={`w-full px-4 py-3 rounded-xl border text-neutral-900 focus:outline-none focus:ring-2 transition-colors ${
+              form.phone && !phoneValid
+                ? 'border-red-300 focus:border-red-400 focus:ring-red-100 bg-red-50'
+                : form.phone && phoneValid
+                ? 'border-success-300 focus:border-success-400 focus:ring-success-100 bg-success-50'
+                : 'border-neutral-200 focus:border-primary-400 focus:ring-primary-100 bg-white'
+            }`}
           />
+          {form.phone && !phoneValid && (
+            <p className="text-xs text-red-600 mt-1">Invalid Philippine phone number format</p>
+          )}
         </div>
       </div>
 

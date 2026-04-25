@@ -17,12 +17,22 @@ export interface EmailNotification {
  */
 export async function queueEmailNotification(notification: EmailNotification) {
   try {
-    // Store notification in database for processing
-    // This allows manual review before sending, or integration with background job
+    // Store notification in database for processing via email service
+    // Using a structured JSON format to avoid misuse of phone field
+    const messageBody = JSON.stringify({
+      type: 'email',
+      to: notification.to,
+      subject: notification.subject,
+      body: notification.body,
+      emailType: notification.type,
+      documentType: notification.documentType,
+      daysUntilExpiry: notification.daysUntilExpiry,
+    });
+
     const whatsappMessage = await prisma.whatsappMessage.create({
       data: {
-        phone: notification.to, // Using phone field temporarily for email
-        message: `[${notification.type.toUpperCase()}] ${notification.subject}\n\n${notification.body}`,
+        phone: notification.to,
+        message: messageBody,
         status: 'pending',
         bookingId: notification.fleetUnitId,
       },
@@ -94,8 +104,14 @@ Dashboard Link: https://kjm-motors.com/admin/dashboard
       `.trim();
 
       try {
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@kjm-motors.com';
+        if (!adminEmail) {
+          console.error('ADMIN_EMAIL not configured. Skipping alert notification.');
+          continue;
+        }
+
         const email = await queueEmailNotification({
-          to: process.env.ADMIN_EMAIL || 'admin@kjm-motors.com',
+          to: adminEmail,
           subject,
           body,
           type: 'document-expiry',
@@ -168,8 +184,13 @@ Please review the damage history in the dashboard and schedule repairs if needed
 Dashboard Link: https://kjm-motors.com/admin/dashboard
     `.trim();
 
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@kjm-motors.com';
+    if (!adminEmail) {
+      throw new Error('ADMIN_EMAIL not configured');
+    }
+
     return await queueEmailNotification({
-      to: process.env.ADMIN_EMAIL || 'admin@kjm-motors.com',
+      to: adminEmail,
       subject,
       body,
       type: 'damage-report',

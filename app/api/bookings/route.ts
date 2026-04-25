@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../lib/db';
 import { sendBookingNotification } from '../../../lib/email';
 import { calculatePrice } from '../../../lib/pricing-engine';
+import { validateEmail, validatePhoneNumber } from '../../../lib/booking-utils';
 
 function generateReference(): string {
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -31,6 +32,35 @@ export async function POST(request: NextRequest) {
 
     if (!vehicleId || !pickupDate || !returnDate || !firstName || !lastName || !email || !phone || !paymentMethod) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
+    }
+
+    // Validate phone number format
+    if (!validatePhoneNumber(phone)) {
+      return NextResponse.json({ error: 'Invalid Philippine phone number format' }, { status: 400 });
+    }
+
+    // Validate dates
+    const pickup = new Date(pickupDate);
+    const returnD = new Date(returnDate);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    if (pickup < now) {
+      return NextResponse.json({ error: 'Pickup date cannot be in the past' }, { status: 400 });
+    }
+
+    if (returnD <= pickup) {
+      return NextResponse.json({ error: 'Return date must be after pickup date' }, { status: 400 });
+    }
+
+    // Validate names (basic check)
+    if (firstName.trim().length < 2 || lastName.trim().length < 2) {
+      return NextResponse.json({ error: 'First and last names must be at least 2 characters' }, { status: 400 });
     }
 
     // Calculate price using pricing engine (includes auto-discount and promo code handling)

@@ -37,19 +37,33 @@ export async function GET(request: NextRequest) {
       where: { vehicleId, status: 'available' },
     });
 
+    if (totalUnits === 0) {
+      return NextResponse.json({ available: false, totalUnits: 0, booked: 0, reason: 'no_units' });
+    }
+
+    // Count bookings that overlap with requested dates
+    // Includes pending, confirmed, and active bookings
     const overlapping = await prisma.booking.count({
       where: {
         vehicleId,
         status: { in: ['pending', 'confirmed', 'active'] },
         AND: [
-          { pickupDate: { lte: end } },
-          { returnDate: { gte: start } },
+          { pickupDate: { lt: end } },
+          { returnDate: { gt: start } },
         ],
       },
     });
 
-    const available = overlapping < totalUnits;
-    return NextResponse.json({ available, totalUnits, booked: overlapping });
+    const availableUnits = totalUnits - overlapping;
+    const available = availableUnits > 0;
+
+    return NextResponse.json({
+      available,
+      totalUnits,
+      booked: overlapping,
+      availableUnits,
+      reason: available ? 'available' : 'fully_booked'
+    });
   } catch {
     return NextResponse.json({ error: 'Availability check failed' }, { status: 500 });
   }

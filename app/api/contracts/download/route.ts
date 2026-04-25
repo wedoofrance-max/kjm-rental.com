@@ -3,6 +3,9 @@ import { prisma } from '../../../../lib/db';
 import { readFile } from 'fs/promises';
 import path from 'path';
 
+const MAX_SIGNATURE_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const REQUEST_TIMEOUT = 30000; // 30 seconds
+
 /**
  * GET /api/contracts/download?reference=KJM-xxx
  * Download signed contract as HTML or PDF-ready format
@@ -14,6 +17,16 @@ export async function GET(request: NextRequest) {
 
   if (!reference) {
     return NextResponse.json({ error: 'reference required' }, { status: 400 });
+  }
+
+  // Validate reference format (basic alphanumeric check)
+  if (!/^KJM-\d{8}-\d{6}$/.test(reference)) {
+    return NextResponse.json({ error: 'Invalid reference format' }, { status: 400 });
+  }
+
+  // Validate format parameter
+  if (!['html', 'pdf'].includes(format)) {
+    return NextResponse.json({ error: 'Invalid format parameter' }, { status: 400 });
   }
 
   try {
@@ -53,10 +66,25 @@ export async function GET(request: NextRequest) {
         'public',
         contract.signaturePath
       );
+
+      // Validate path doesn't escape public directory (path traversal protection)
+      const resolvedPath = path.resolve(signaturePath);
+      const publicPath = path.resolve(process.cwd(), 'public');
+      if (!resolvedPath.startsWith(publicPath)) {
+        throw new Error('Invalid signature path');
+      }
+
       const signatureBuffer = await readFile(signaturePath);
-      signatureBase64 = signatureBuffer.toString('base64');
+
+      // Check file size
+      if (signatureBuffer.length > MAX_SIGNATURE_FILE_SIZE) {
+        console.error(`Signature file too large: ${signatureBuffer.length} bytes`);
+      } else {
+        signatureBase64 = signatureBuffer.toString('base64');
+      }
     } catch (err) {
       console.error('Error reading signature:', err);
+      // Continue without signature rather than failing the whole request
     }
 
     // Generate HTML contract with signature

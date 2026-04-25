@@ -24,8 +24,18 @@ async function buildLiveVehicles(): Promise<LiveVehicle[]> {
 }
 
 export async function getPublicVehicles(): Promise<Vehicle[]> {
-  const all = await buildLiveVehicles();
-  return all.filter((v) => v.visible);
+  // Add timeout to prevent hanging
+  const timeoutPromise = new Promise<Vehicle[]>((_, reject) =>
+    setTimeout(() => reject(new Error('Vehicle query timeout')), 5000)
+  );
+
+  try {
+    const all = await Promise.race([buildLiveVehicles(), timeoutPromise]);
+    return all.filter((v) => v.visible);
+  } catch (err) {
+    console.error('Error fetching public vehicles:', err);
+    throw err;
+  }
 }
 
 export async function getPublicVehicle(slug: string): Promise<Vehicle | null> {
