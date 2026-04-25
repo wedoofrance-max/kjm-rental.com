@@ -63,7 +63,9 @@
       "Bash(curl -v -m 2 http://127.0.0.1:8080/api/test)",
       "Bash(pkill -9 node)",
       "Bash(kill -9 2365)",
-      "Bash(ps -o pid,state,etime,ruser,cmd)"
+      "Bash(ps -o pid,state,etime,ruser,cmd)",
+      "Bash(kill 6945 *)",
+      "Bash(curl -s http://localhost:3000/)"
     ]
   }
 }

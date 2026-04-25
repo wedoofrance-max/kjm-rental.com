@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "../styles/globals.css";
 import { ToastContainer } from "../components/ui/Toast";
-import { Navbar } from "../components/layout";
-import { Footer } from "../components/layout";
+import { LayoutWrapper } from "../components/layout/LayoutWrapper";
 import { organizationSchema } from "../lib/schema";
 
 const BASE = 'https://kjm-motors.com';
@@ -59,11 +58,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900">
-        <Navbar />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        <LayoutWrapper>{children}</LayoutWrapper>
         <ToastContainer />
       </body>
     </html>
