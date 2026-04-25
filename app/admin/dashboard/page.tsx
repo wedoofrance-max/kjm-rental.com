@@ -1984,10 +1984,6 @@ export default function AdminDashboard() {
                 <ConversionFunnel isDark={isDark} />
               </div>
 
-              {/* Column 3: Page Views */}
-              <div className="lg:col-span-1">
-                <PageViewsAnalytics isDark={isDark} />
-              </div>
             </div>
 
             {/* Content Analytics */}
@@ -2389,11 +2385,10 @@ export default function AdminDashboard() {
         </div>
       )}
 
-            {/* Block dates panel */}
-            {blockingVehicle && (
-              <BlockDatesPanel vehicle={blockingVehicle} onClose={() => setBlockingVehicle(null)} isDark={isDark} />
-            )}
-          </div>
+      {/* Block dates panel */}
+      {blockingVehicle && (
+        <BlockDatesPanel vehicle={blockingVehicle} onClose={() => setBlockingVehicle(null)} isDark={isDark} />
+      )}
         </div>
       </div>
     </div>
