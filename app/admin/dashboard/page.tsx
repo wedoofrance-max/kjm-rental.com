@@ -1614,14 +1614,14 @@ export default function AdminDashboard() {
 
       {/* Main wrapper - offset for sidebar */}
       <div className="lg:ml-20 transition-all duration-300">
-        <div className={`${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-neutral-50 border-neutral-200'} border-b px-6 py-4 flex items-center justify-between`}>
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-orange-700 flex items-center justify-center">
+        <div className={`${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-neutral-50 border-neutral-200'} border-b px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4`}>
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-orange-700 flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-sm">K</span>
           </div>
-          <span className="font-bold text-lg">KJM Admin</span>
+          <span className="font-bold text-base sm:text-lg truncate">KJM Admin</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
           <button
             onClick={() => {
               if (tab === 'bookings') fetchBookings();
@@ -1675,22 +1675,22 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8">
           {[
             { label: 'Total Bookings', value: total, icon: 'ph:calendar-check-fill', color: 'text-white' },
             { label: 'Pending', value: pending, icon: 'ph:clock-fill', color: 'text-yellow-400' },
             { label: 'Active Now', value: active, icon: 'ph:motorcycle-fill', color: 'text-green-400' },
             { label: 'Total Revenue', value: `₱${revenue.toLocaleString('en-US')}`, icon: 'ph:money-fill', color: 'text-primary-400' },
           ].map((s) => (
-            <div key={s.label} className={`${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-neutral-50 border-neutral-200'} border rounded-2xl p-5`}>
-              <div className="flex items-center gap-2 mb-3">
+            <div key={s.label} className={`${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-neutral-50 border-neutral-200'} border rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5`}>
+              <div className="flex items-center gap-2 mb-2 sm:mb-3">
                 {/* @ts-ignore */}
-                <Icon icon={s.icon} width={18} height={18} className={s.color} />
-                <span className={`text-xs font-semibold ${isDark ? 'text-neutral-500' : 'text-neutral-600'} uppercase tracking-wider`}>{s.label}</span>
+                <Icon icon={s.icon} width={16} height={16} className={`${s.color} flex-shrink-0`} />
+                <span className={`text-[10px] sm:text-xs font-semibold ${isDark ? 'text-neutral-500' : 'text-neutral-600'} uppercase tracking-wider truncate`}>{s.label}</span>
               </div>
-              <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+              <p className={`text-lg sm:text-xl lg:text-2xl font-bold ${s.color} truncate`}>{s.value}</p>
             </div>
           ))}
         </div>
@@ -1706,10 +1706,10 @@ export default function AdminDashboard() {
               ? 'bg-yellow-500/10 border-yellow-500/30'
               : 'bg-yellow-50 border-yellow-200'
           }`}>
-            <div className="px-6 py-4 space-y-3">
-              <div className="flex items-center justify-between">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className={`text-lg font-bold ${
+                  <span className={`text-sm sm:text-lg font-bold ${
                     documentAlerts.some(a => a.daysUntilExpiry < 0) || documentAlerts.some(a => a.daysUntilExpiry <= 7)
                       ? 'text-red-400'
                       : 'text-yellow-400'
@@ -1796,14 +1796,14 @@ export default function AdminDashboard() {
         {/* Bookings Tab */}
         {tab === 'bookings' && (
           <>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>Bookings</h3>
-                <p className={`text-sm mt-1 ${isDark ? 'text-neutral-500' : 'text-neutral-600'}`}>Manage all scooter rental bookings</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
+              <div className="min-w-0">
+                <h3 className={`text-base sm:text-lg font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>Bookings</h3>
+                <p className={`text-xs sm:text-sm mt-1 ${isDark ? 'text-neutral-500' : 'text-neutral-600'}`}>Manage all scooter rental bookings</p>
               </div>
               <button
                 onClick={() => setShowAddBooking(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-primary-500 hover:bg-primary-600 text-white text-sm font-bold rounded-xl transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-500 hover:bg-primary-600 text-white text-sm font-bold rounded-xl transition-colors flex-shrink-0 whitespace-nowrap"
               >
                 {/* @ts-ignore */}
                 <Icon icon="ph:plus-bold" width={16} height={16} />
