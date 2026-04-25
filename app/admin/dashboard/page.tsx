@@ -1436,6 +1436,10 @@ export default function AdminDashboard() {
   const [selected, setSelected] = useState<Booking | null>(null);
   const [showAddBooking, setShowAddBooking] = useState(false);
   const [creatingBooking, setCreatingBooking] = useState(false);
+  const [showRenewBooking, setShowRenewBooking] = useState<Booking | null>(null);
+  const [renewingBooking, setRenewingBooking] = useState(false);
+  const [newReturnDate, setNewReturnDate] = useState('');
+  const [renewalQuote, setRenewalQuote] = useState<{ days: number; price: number } | null>(null);
   const [manualBookingForm, setManualBookingForm] = useState({
     firstName: '',
     lastName: '',
@@ -1582,6 +1586,95 @@ export default function AdminDashboard() {
   const logout = async () => {
     await fetch('/api/admin/login', { method: 'DELETE' });
     router.push('/admin');
+  };
+
+  // Renewal logic - calculate quote when date changes
+  useEffect(() => {
+    if (!showRenewBooking || !newReturnDate) {
+      setRenewalQuote(null);
+      return;
+    }
+
+    const currentReturn = new Date(showRenewBooking.returnDate);
+    const newReturn = new Date(newReturnDate);
+
+    if (newReturn <= currentReturn) {
+      setRenewalQuote(null);
+      return;
+    }
+
+    const additionalDays = Math.ceil(
+      (newReturn.getTime() - currentReturn.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    // Find vehicle rates from bookings list
+    const vehicleData = vehicles.find(v => v.brand === showRenewBooking.vehicle.brand && v.model === showRenewBooking.vehicle.model);
+    const dailyRate = vehicleData?.dailyRate || 500;
+    const weeklyRate = vehicleData?.weeklyRate || dailyRate * 7;
+    const monthlyRate = vehicleData?.monthlyRate || dailyRate * 28;
+
+    // Tiered pricing calculation
+    let additionalPrice = 0;
+    let daysLeft = additionalDays;
+
+    const months = Math.floor(daysLeft / 28);
+    if (months > 0) {
+      additionalPrice += months * monthlyRate;
+      daysLeft -= months * 28;
+    }
+
+    const weeks = Math.floor(daysLeft / 7);
+    if (weeks > 0) {
+      additionalPrice += weeks * weeklyRate;
+      daysLeft -= weeks * 7;
+    }
+
+    if (daysLeft > 0) {
+      additionalPrice += daysLeft * dailyRate;
+    }
+
+    setRenewalQuote({ days: additionalDays, price: additionalPrice });
+  }, [showRenewBooking, newReturnDate, vehicles]);
+
+  const renewBooking = async () => {
+    if (!showRenewBooking || !newReturnDate) return;
+
+    setRenewingBooking(true);
+    try {
+      const res = await fetch('/api/admin/bookings/renew', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingId: showRenewBooking.id,
+          newReturnDate,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const contractMsg = data.renewal.contractStatus === 'needs_resigning'
+          ? `\n\n📝 Contract has been invalidated. Customer must re-sign at:\n${window.location.origin}${data.renewal.contractResignUrl}`
+          : '';
+
+        alert(`✅ Booking renewed successfully!\n\nExtended by ${data.renewal.additionalDays} days\nAdditional cost: ₱${data.renewal.additionalPrice.toLocaleString('en-US')}\nNew total: ₱${data.renewal.newTotalPrice.toLocaleString('en-US')}${contractMsg}`);
+
+        // Copy resign URL to clipboard if needed
+        if (data.renewal.contractStatus === 'needs_resigning' && navigator.clipboard) {
+          navigator.clipboard.writeText(`${window.location.origin}${data.renewal.contractResignUrl}`).catch(() => {});
+        }
+
+        setShowRenewBooking(null);
+        setNewReturnDate('');
+        setRenewalQuote(null);
+        await fetchBookings();
+      } else {
+        alert('❌ Error: ' + (data.error || 'Failed to renew booking'));
+      }
+    } catch (err) {
+      alert('Error renewing booking: ' + err);
+    }
+    setRenewingBooking(false);
   };
 
   const total = bookings.length;
@@ -2118,6 +2211,29 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              {/* Renewal button - only for confirmed/active bookings */}
+              {['confirmed', 'active'].includes(selected.status) && (
+                <div>
+                  <button
+                    onClick={() => {
+                      setShowRenewBooking(selected);
+                      // Pre-fill with current return date + 7 days
+                      const next = new Date(selected.returnDate);
+                      next.setDate(next.getDate() + 7);
+                      setNewReturnDate(next.toISOString().split('T')[0]);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white text-sm font-bold rounded-xl transition-all shadow-lg"
+                  >
+                    {/* @ts-ignore */}
+                    <Icon icon="ph:arrow-clockwise-bold" width={18} height={18} />
+                    Renew / Extend Rental
+                  </button>
+                  <p className={`text-xs mt-2 text-center ${isDark ? 'text-neutral-500' : 'text-neutral-600'}`}>
+                    Extends the rental period and updates the contract
+                  </p>
+                </div>
+              )}
+
               <div>
                 <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${isDark ? 'text-neutral-500' : 'text-neutral-600'}`}>Rental</p>
                 <div className={`rounded-xl p-4 space-y-3 ${isDark ? 'bg-neutral-800' : 'bg-neutral-50'}`}>
@@ -2211,6 +2327,144 @@ export default function AdminDashboard() {
                 <Icon icon="logos:whatsapp-icon" width={20} height={20} />
                 WhatsApp {selected.customer.firstName}
               </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Renew Booking Modal */}
+      {showRenewBooking && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className={`${isDark ? 'bg-neutral-900' : 'bg-white'} rounded-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto`}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                  🔄 Renew Rental
+                </h3>
+                <p className={`text-sm mt-1 ${isDark ? 'text-neutral-500' : 'text-neutral-600'}`}>
+                  Extend booking {showRenewBooking.reference}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowRenewBooking(null);
+                  setNewReturnDate('');
+                  setRenewalQuote(null);
+                }}
+                className={`text-2xl ${isDark ? 'text-neutral-400 hover:text-neutral-300' : 'text-neutral-400 hover:text-neutral-600'}`}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Current booking info */}
+            <div className={`rounded-xl p-4 mb-4 ${isDark ? 'bg-neutral-800' : 'bg-neutral-50'}`}>
+              <p className={`text-xs font-bold uppercase mb-2 ${isDark ? 'text-neutral-500' : 'text-neutral-600'}`}>
+                Current Rental
+              </p>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>Customer:</span>
+                  <span className={`font-semibold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                    {showRenewBooking.customer.firstName} {showRenewBooking.customer.lastName}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>Vehicle:</span>
+                  <span className={`font-semibold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                    {showRenewBooking.vehicle.brand} {showRenewBooking.vehicle.model}
+                  </span>
+                </div>
+                {showRenewBooking.fleetUnit && (
+                  <div className="flex justify-between">
+                    <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>Plate:</span>
+                    <span className="font-bold text-yellow-400">{showRenewBooking.fleetUnit.licensePlate}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>Current Return:</span>
+                  <span className={`font-semibold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                    {fmt(showRenewBooking.returnDate)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>Current Total:</span>
+                  <span className="font-bold text-primary-400">
+                    ₱{showRenewBooking.totalPrice.toLocaleString('en-US')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* New return date */}
+            <div className="mb-4">
+              <label className={`text-xs font-semibold mb-2 block ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                New Return Date *
+              </label>
+              <input
+                type="date"
+                value={newReturnDate}
+                min={new Date(new Date(showRenewBooking.returnDate).getTime() + 86400000).toISOString().split('T')[0]}
+                onChange={(e) => setNewReturnDate(e.target.value)}
+                className={`w-full rounded-lg px-3 py-3 text-sm focus:outline-none focus:border-primary-500 ${isDark ? 'bg-neutral-800 border border-neutral-700 text-white' : 'bg-white border border-neutral-300 text-neutral-900'}`}
+              />
+            </div>
+
+            {/* Renewal Quote */}
+            {renewalQuote && (
+              <div className={`rounded-xl p-4 mb-4 border-2 ${isDark ? 'bg-primary-500/10 border-primary-500/30' : 'bg-primary-50 border-primary-200'}`}>
+                <p className={`text-xs font-bold uppercase mb-2 text-primary-400`}>
+                  💰 Renewal Quote
+                </p>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>Extra days:</span>
+                    <span className={`font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                      +{renewalQuote.days} days
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={isDark ? 'text-neutral-400' : 'text-neutral-600'}>Additional cost:</span>
+                    <span className="font-bold text-primary-400">
+                      +₱{renewalQuote.price.toLocaleString('en-US')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between pt-2 mt-2 border-t border-current/20">
+                    <span className={`font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>New Total:</span>
+                    <span className="font-bold text-primary-400 text-lg">
+                      ₱{(showRenewBooking.totalPrice + renewalQuote.price).toLocaleString('en-US')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Contract notice */}
+            <div className={`rounded-xl p-3 mb-4 ${isDark ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-yellow-50 border border-yellow-200'}`}>
+              <p className={`text-xs ${isDark ? 'text-yellow-300' : 'text-yellow-800'}`}>
+                ⚠️ <strong>Contract Update:</strong> Renewing this rental will require a new contract version. The customer will need to re-sign the updated contract reflecting the new return date and total amount.
+              </p>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-3 pt-4 border-t" style={{ borderColor: isDark ? '#404040' : '#e5e7eb' }}>
+              <button
+                onClick={() => {
+                  setShowRenewBooking(null);
+                  setNewReturnDate('');
+                  setRenewalQuote(null);
+                }}
+                className={`flex-1 px-4 py-3 text-sm font-bold rounded-lg transition-colors ${isDark ? 'bg-neutral-800 hover:bg-neutral-700 text-white' : 'bg-neutral-200 hover:bg-neutral-300 text-neutral-900'}`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={renewBooking}
+                disabled={renewingBooking || !renewalQuote}
+                className="flex-1 px-4 py-3 bg-primary-500 hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold rounded-lg transition-colors"
+              >
+                {renewingBooking ? 'Renewing…' : 'Confirm Renewal'}
+              </button>
             </div>
           </div>
         </div>
