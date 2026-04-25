@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '../../../components/ui/Icon';
-import PageViewsAnalytics from '../../../components/admin/PageViewsAnalytics';
 import CameraCapture from '../../../components/admin/CameraCapture';
 import PromoCodesPanel from '../../../components/admin/PromoCodesPanel';
 import DocumentsTab from '../../../components/admin/DocumentsTab';
@@ -1773,11 +1772,6 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-
-        {/* Analytics Widget */}
-        <div className="mb-8">
-          <PageViewsAnalytics isDark={isDark} />
-        </div>
 
         {/* Tabs with Navigation */}
         <div className="flex items-center gap-5 mb-6">
