@@ -10,7 +10,7 @@ function createPrismaClient() {
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient; prismaVersion?: string };
 
-const PRISMA_VERSION = '6'; // bump to force new client after prisma generate
+const PRISMA_VERSION = '7'; // bump to force new client after prisma generate
 
 if (globalForPrisma.prismaVersion !== PRISMA_VERSION) {
   globalForPrisma.prisma = undefined as any;
